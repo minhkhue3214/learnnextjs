@@ -1,7 +1,8 @@
 "use client";
 import Link from 'next/link'
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
+import axios from "axios";
 
 const page = () => {
   const router = useRouter()
@@ -17,22 +18,29 @@ const page = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch("http://localhost:8000/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email:formData.email,
-        password:formData.password,
-      }),
-    });
 
-    console.log("response",response.status);
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/api/v1/login", {
+        email: formData.email,
+        password: formData.password,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (response.status === 200) {
-      router.push('/dashboard')
+      console.log("response", response.data.token);
+
+      // Convert the object to a string and store it
+      localStorage.setItem("token", JSON.stringify(response.data.token));
+
+      if (response.data.status === true) {
+        router.push('/home');
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
     }
-
-  };
+  }
 
   return (
     <div className="flex justify-center items-center h-screen bg-indigo-400">

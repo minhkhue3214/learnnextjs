@@ -2,7 +2,7 @@
 import axios from 'axios';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter()
@@ -11,6 +11,7 @@ export default function Home() {
     name: '',
     email: '',
     password: '',
+    password_confirmation: '',
   });
 
   const handleChange = (e) => {
@@ -20,21 +21,27 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:8000/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/api/v1/register", {
         name:formData.name,
         email:formData.email,
         password:formData.password,
-      }),
-    });
+        password_confirmation:formData.password_confirmation,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (response.status === 200) {
-      router.push('/login')
+      console.log("response", response);
+
+      if (response.data.status === true) {
+        router.push('/login')
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
     }
-
-  };
+  }
 
 
   return (
@@ -53,6 +60,10 @@ export default function Home() {
         <div className="mt-3">
           <label htmlFor="password" className="block text-base mb-2">Password</label>
           <input type="password" onChange={handleChange} id="password" className="border w-full text-base px-2 py-1 focus:outline-none focus:right-0 focus:border-gray-600" placeholder="Enter password..." />
+        </div>
+        <div className="mt-3">
+          <label htmlFor="password" className="block text-base mb-2">Password Confirmation</label>
+          <input type="password" onChange={handleChange} id="password_confirmation" className="border w-full text-base px-2 py-1 focus:outline-none focus:right-0 focus:border-gray-600" placeholder="Enter password..." />
         </div>
         <div className='flex mt-3 bg-red-500 items-center justify-center w-20 p-1 border-2'>
           <Link href="/login" className='text-slate-100 hover:text-gray-950'>Login</Link>
